@@ -77,10 +77,9 @@ export const loginCognito = async (email, password) => {
           });
         });
         
-        console.log('Ingreso exitoso!', result);
-        return 1;
+        return result.idToken.payload.sub;
     } catch (error) {
-        console.error('Error al iniciar sesión', error.code);
+        console.error('Error al iniciar sesión', error);
         switch(error.code){
             case "UserNotConfirmedException":
                 return -1;

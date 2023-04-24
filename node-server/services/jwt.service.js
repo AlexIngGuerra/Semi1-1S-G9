@@ -3,7 +3,8 @@ import {SECRET} from "../config/config.js";
 
 // Crear un token del json de un usuario
 export const crearToken = async (usuario) =>{
-    const token = jwt.sign(usuario, SECRET, { expiresIn: '2h' });
+    const token = jwt.sign({id: usuario}, SECRET, { expiresIn: '24h' });
+    console.log(token)
     return token;
 }
 
