@@ -10,10 +10,8 @@ export const verificarToken = async (req, res) => {
         auth: false
     }
     try{
-        const token = req.headers["access-token"];
-        const user = await validarToken(token)
-
-        //Denegar Acceso
+        //Verificar Token
+        const user = await validarToken(req.headers["access-token"])
         if (user == null){
             result.mensaje = "Acceso Denegado"
             return res.status(401).json(result)
