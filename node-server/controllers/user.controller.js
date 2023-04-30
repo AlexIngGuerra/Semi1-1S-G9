@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import md5 from "md5";
 import {loginCognito, registrarCognito, verificarEmail} from "../services/cognito.service.js";
 import {pool} from "../config/configDB.js";
+import {guardarFoto} from "../services/s3.service.js"
 
 export const verificarToken = async (req, res) => {
     let result = {
@@ -47,7 +48,11 @@ export const registrarUsuario = async (req, res) => {
         const PathFoto = "Fotos_Perfil/"+uuid+"-"+nombre_foto;
 
         // Agregar imagen a S3
-        
+        const puts3 = await guardarFoto(PathFoto, imagen)
+        if(!puts3){
+            result.mensaje = "Error: No se pudo cuardar la foto"
+            return res.status(500).json(result);
+        }
 
         // Agregar Info a la base de datos
         await pool.query(
