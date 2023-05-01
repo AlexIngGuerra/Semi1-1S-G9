@@ -1,10 +1,13 @@
 import {crearToken, validarToken} from "../services/jwt.service.js";
 import { v4 as uuidv4 } from 'uuid';
 import md5 from "md5";
-import {loginCognito, registrarCognito, verificarEmail} from "../services/cognito.service.js";
 import {pool} from "../config/configDB.js";
-import {guardarFoto} from "../services/s3.service.js"
+import {loginCognito, registrarCognito, verificarEmail, cuentaActiva} from "../services/cognito.service.js";
+import {guardarFoto, obtenerFotoS3} from "../services/s3.service.js"
+import {compararFotoRK} from "../services/rekognition.service.js"
 
+
+// Verifica si el token enviado sigue siendo valido
 export const verificarToken = async (req, res) => {
     let result = {
         mensaje: "",
@@ -30,6 +33,8 @@ export const verificarToken = async (req, res) => {
     }
 }
 
+
+// Permite registrar un usuario con foto en la plataforma
 export const registrarUsuario = async (req, res) => {
     let result = {
         mensaje: "",
@@ -78,6 +83,7 @@ export const registrarUsuario = async (req, res) => {
 
 }
 
+// Verifica la cuenta con el codigo enviado al correo
 export const verificarCuenta = async (req, res) =>{
     let result = {
         mensaje: "",
@@ -104,6 +110,7 @@ export const verificarCuenta = async (req, res) =>{
     }
 }
 
+// Permite iniciar sesión en la plataformas
 export const iniciarSesion = async (req, res) => {
     let result = {
         mensaje: "",
@@ -127,7 +134,7 @@ export const iniciarSesion = async (req, res) => {
 
         // Obtenemos el nombre del usuario en la base de datos
         console.log("UUID:"+cognitoResult)
-        const [Select] = await pool.query(`SELECT nombre From Usuario WHERE id = 'f5df522b-b1ba-4796-a213-aae4ef4e02fa';`);
+        const [Select] = await pool.query(`SELECT nombre From Usuario WHERE id = '${cognitoResult}';`);
 
         // Creamos el token de ingreso
         result.nombre = Select[0].nombre;
@@ -143,5 +150,43 @@ export const iniciarSesion = async (req, res) => {
     }
 }
 
+
+export const iniciarSesionFoto = async (req, res) =>{
+    let result = {
+        message: "",
+        token: "", 
+        nombre: ""
+    }
+
+    try{
+        const {imagen} = req.body;
+
+        const [Select] = await pool.query(
+            `SELECT usr.id as id, fp.url as url, usr.nombre as nombre, usr.correo as correo
+            FROM FotoPerfil fp
+            INNER JOIN Usuario usr ON usr.id = fp.usuario
+            WHERE fp.activa = 1
+            ;`);
+
+
+        for(let i = 0; i < Select.length; i++){
+            const foto = await obtenerFotoS3(Select[i].url);
+            const resultRk = await compararFotoRK(foto, imagen);
+            if(resultRk){
+                if (cuentaActiva(Select[i].correo)){
+                    return res.status(200).json(result)
+                }
+            }
+        }
+
+        result.message = "Inicio de Sesión Fallido. No existe ninguna cuenta con la Foto."
+        return res.status(401).json(result);
+    }
+    catch (error) {//Error si algo sale mal
+        console.log(error)
+        result.message = "Something goes wrong"
+        return res.status(500).json(result);
+    }
+}
 
 

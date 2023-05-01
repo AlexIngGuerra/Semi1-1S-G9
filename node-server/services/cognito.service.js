@@ -51,8 +51,8 @@ export const verificarEmail = async (email, codigo) => {
 
 export const loginCognito = async (email, password) => {
     const poolData = {
-    UserPoolId: USER_POOL,
-    ClientId: APP_CLIENT_ID
+      UserPoolId: USER_POOL,
+      ClientId: APP_CLIENT_ID
     };
 
     const userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
@@ -86,4 +86,26 @@ export const loginCognito = async (email, password) => {
         }
         return 0;
     }
+}
+
+export const cuentaActiva = async (email) =>{
+  aws.config.update(configCognito);
+  const cognito = new aws.CognitoIdentityServiceProvider();
+
+  const params = {
+    UserPoolId: USER_POOL,
+    Username: email
+  };
+
+  try{
+    const resultado = await cognito.adminGetUser(params).promise()
+    if (resultado.UserStatus == 'UNCONFIRMED'){
+      return false
+    }
+    return true;
+  }catch(error){
+    console.log(error)
+    return false;
+  }
+
 }
