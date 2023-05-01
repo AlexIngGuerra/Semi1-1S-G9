@@ -1,6 +1,6 @@
 import {pool} from "../config/configDB.js";
 import {URL_S3} from "../config/configS3.js"
-import {guardarFoto, obtenerFotoS3, } from "../services/s3.service.js"
+import {guardarFoto} from "../services/s3.service.js"
 import {obtenerEtiquetas} from "../services/rekognition.service.js"
 import {validarToken} from "../services/jwt.service.js";
 
@@ -172,7 +172,7 @@ export const getEtiquetas = async (req, res) => {
     }
 }
 
-
+// Obtener publicacion por etiqueta
 export const getPublicacionesEtiqueta = async (req, res) =>{
     let result = {
         mensaje: "",
