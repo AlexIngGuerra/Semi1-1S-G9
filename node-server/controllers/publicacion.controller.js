@@ -171,3 +171,40 @@ export const getEtiquetas = async (req, res) => {
         return res.status(500).json(result);
     }
 }
+
+
+export const getPublicacionesEtiqueta = async (req, res) =>{
+    let result = {
+        mensaje: "",
+        publicaciones: []
+    }
+
+    try{
+        //Verificar token
+        const etiqueta = req.params.etiqueta;
+
+        const user = await validarToken(req.headers["access-token"]);
+        if (user == null){
+            result.mensaje = "Acceso Denegado"
+            return res.status(401).json(result)
+        }
+
+        const [Select] = await pool.query(
+            `Select Publicacion.id, Publicacion.url_foto, Publicacion.descripcion from Publicacion 
+            Inner Join Usuario on Usuario.id = Publicacion.usuario
+            Inner Join Publicacion_Etiqueta on Publicacion_Etiqueta.publicacion = Publicacion.id
+            Inner Join Etiqueta on Etiqueta.id = Publicacion_Etiqueta.etiqueta
+            Where Etiqueta.id = ${etiqueta}
+            and Usuario.id = '${user.id}';`
+            );
+
+        result.mensaje = "Publicaciones obtenidas correctamente"
+        result.publicaciones = Select
+        return res.status(200).json(result);
+    }
+    catch (error) {//Error si algo sale mal
+        console.log(error)
+        result.mensaje = "Algo ha salido mal"
+        return res.status(500).json(result);
+    }
+}
