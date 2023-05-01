@@ -104,10 +104,11 @@ export const subirFoto = async (req, res) =>{
 }
 
 
-// 
-export const obtenerPublicaciones = async (req, res) =>{
+// Obtener todas las publicaciones de un usuario
+export const getPublicacionesTodas = async (req, res) =>{
     let result = {
         mensaje: "",
+        publicaciones: []
     }
 
     try{
@@ -118,7 +119,50 @@ export const obtenerPublicaciones = async (req, res) =>{
             return res.status(401).json(result)
         }
 
-        result.mensaje = ""
+        const [Select] = await pool.query(
+            `SELECT id, nombre_foto, url_foto, descripcion
+            FROM Publicacion Where usuario = '${user.id}'`);
+
+        const publicaciones =  Select.map(item =>{
+            item.url_foto = URL_S3+item.url_foto
+            return item
+        })
+
+        result.mensaje = "Publicaciones obtenidas correctamente"
+        result.publicaciones = publicaciones
+        return res.status(200).json(result);
+    }
+    catch (error) {//Error si algo sale mal
+        console.log(error)
+        result.mensaje = "Algo ha salido mal"
+        return res.status(500).json(result);
+    }
+}
+
+
+// Obtener todas las etiquetas
+export const getEtiquetas = async (req, res) => {
+    let result = {
+        mensaje: "",
+        etiquetas: []
+    }
+
+    try{
+        //Verificar token
+        const user = await validarToken(req.headers["access-token"]);
+        if (user == null){
+            result.mensaje = "Acceso Denegado"
+            return res.status(401).json(result)
+        }
+
+        const [Select] = await pool.query(
+            `Select distinct(Etiqueta.id), nombre from Etiqueta
+            Inner Join Publicacion_Etiqueta on Publicacion_Etiqueta.etiqueta = Etiqueta.id
+            Inner Join Publicacion on Publicacion.id = Publicacion_Etiqueta.publicacion
+            Where Publicacion.usuario = '${user.id}'`);
+
+        result.mensaje = "Etiquetas obtenidas correctamente"
+        result.etiquetas = Select
         return res.status(200).json(result);
     }
     catch (error) {//Error si algo sale mal
