@@ -153,9 +153,9 @@ export const iniciarSesion = async (req, res) => {
 
 export const iniciarSesionFoto = async (req, res) =>{
     let result = {
-        message: "",
-        token: "", 
-        nombre: ""
+        mensaje: "",
+        nombre: "",
+        token: ""
     }
 
     try{
@@ -174,6 +174,9 @@ export const iniciarSesionFoto = async (req, res) =>{
             const resultRk = await compararFotoRK(foto, imagen);
             if(resultRk){
                 if (cuentaActiva(Select[i].correo)){
+                    result.nombre = Select[i].nombre
+                    result.token = await crearToken(Select[i].id)
+                    result.mensaje = "Inicio de Sesión exitoso"
                     return res.status(200).json(result)
                 }
             }
