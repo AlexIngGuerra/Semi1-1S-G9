@@ -245,3 +245,33 @@ export const crearComentario = async (req, res) => {
     return res.status(500).json(result);
   }
 };
+
+// Obtener publicacion por etiqueta
+export const getComentario = async (req, res) => {
+  let result = {
+    mensaje: "",
+    comentarios: [],
+  };
+
+  try {
+    //Verificar token
+    const idpublicacion = req.params.publicacion;
+
+    const user = await validarToken(req.headers["access-token"]);
+    if (user == null) {
+      result.mensaje = "Acceso Denegado";
+      return res.status(401).json(result);
+    }
+
+    const [Select] = await pool.query(`call GetComentario(${idpublicacion})`);
+
+    result.mensaje = "Comentarios obtenidos correctamente";
+    result.comentarios = Select;
+    return res.status(200).json(result);
+  } catch (error) {
+    //Error si algo sale mal
+    console.log(error);
+    result.mensaje = "Algo ha salido mal";
+    return res.status(500).json(result);
+  }
+};
