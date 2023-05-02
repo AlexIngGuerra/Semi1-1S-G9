@@ -7,8 +7,8 @@ export const Chatbot = async (req, res) => {
     if (user == null) {
       return res.status(401).json({ respuesta: "Acceso Denegado" });
     }
-    const { id, message } = req.body;
-    const resp = await sendToLex(id, message);
+    const { message } = req.body;
+    const resp = await sendToLex(user.id, message);
     if (resp.intentName == "FuncionDos" && resp.slots.hora != null) {
       horas.push(resp.slots.hora);
       return res
