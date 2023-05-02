@@ -150,7 +150,7 @@ export const iniciarSesion = async (req, res) => {
     }
 }
 
-
+// Iniciar sesion por foto
 export const iniciarSesionFoto = async (req, res) =>{
     let result = {
         mensaje: "",
@@ -188,6 +188,94 @@ export const iniciarSesionFoto = async (req, res) =>{
     catch (error) {//Error si algo sale mal
         console.log(error)
         result.message = "Something goes wrong"
+        return res.status(500).json(result);
+    }
+}
+
+// Obtener la información actual del perfil
+export const getDatosPerfil = async (req, res) => {
+    let result = {
+        mensaje: "",
+        data: []
+    }
+
+    try{
+        //Verificar token
+        const user = await validarToken(req.headers["access-token"]);
+        if (user == null){
+            result.mensaje = "Acceso Denegado"
+            return res.status(401).json(result)
+        }
+
+        const [Select] = await pool.query(
+            `SELECT nombre, dpi, correo FROM Usuario
+            WHERE id = '${user.id}'`);
+
+        result.mensaje = "Datos de perfil obtenidos correctamente"
+        result.data = Select[0]
+        return res.status(200).json(result);
+    }
+    catch (error) {//Error si algo sale mal
+        console.log(error)
+        result.mensaje = "Algo ha salido mal"
+        return res.status(500).json(result);
+    }
+}
+
+// Modificar los datos ingresados
+export const modificarDatos = async (req, res) => {
+    let result = {
+        mensaje: "",
+    }
+
+    try{
+        const {dpi, nombre, password} = req.body;
+
+        //Verificar token
+        const user = await validarToken(req.headers["access-token"]);
+        if (user == null){
+            result.mensaje = "Acceso Denegado"
+            return res.status(401).json(result)
+        }
+
+        // VERIFICAR CONTRASEÑA
+        const [Select] = await pool.query(
+            `SELECT COUNT(id) as result FROM Usuario
+            WHERE id = '${user.id}' and password = '${md5(password)}';`);
+        if (Select[0].result < 1){
+            result.mensaje = "Debe ingresar su contraseña correctamente"
+            return res.status(401).json(result)
+        }
+
+        let updates = []
+
+        if (dpi != ""){
+            updates.push(`dpi = '${dpi}'`)
+        }
+
+        if (nombre != ""){
+            updates.push(`nombre = '${nombre}'`)
+        }
+
+        if (updates.length < 1){
+            result.mensaje = "Debe modificar por lo menos un parametro"
+            return res.status(500).json(result);
+        }
+
+        let query = "UPDATE Usuario SET "+updates[0]
+        for (let i = 1; i < updates.length; i++) {
+            query += " , " + updates[i]
+        }
+        query += ` WHERE id = '${user.id}'`
+        
+        await pool.query(query);
+
+        result.mensaje = "Datos actualizados"
+        return res.status(200).json(result);
+    }
+    catch (error) {//Error si algo sale mal
+        console.log(error)
+        result.mensaje = "Algo ha salido mal"
         return res.status(500).json(result);
     }
 }
