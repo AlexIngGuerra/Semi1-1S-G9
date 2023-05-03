@@ -23,7 +23,6 @@ function Chatbot() {
 
             //Aqui se envia el mensaje y se obtiene la respuesta
             const data = {
-                id: localStorage.getItem('userId'),
                 message: messageData.message
             }
 
