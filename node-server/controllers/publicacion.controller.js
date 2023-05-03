@@ -206,8 +206,13 @@ export const getPublicacionesEtiqueta = async (req, res) => {
             and Usuario.id = '${user.id}';`
     );
 
+    const publicaciones = Select.map((item) => {
+      item.url_foto = URL_S3 + item.url_foto;
+      return item;
+    });
+
     result.mensaje = "Publicaciones obtenidas correctamente";
-    result.publicaciones = Select;
+    result.publicaciones = publicaciones;
     return res.status(200).json(result);
   } catch (error) {
     //Error si algo sale mal
