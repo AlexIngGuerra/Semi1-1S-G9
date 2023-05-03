@@ -138,6 +138,8 @@ La base de datos se implemento utilizando MySQL como gestor y ejecución dentro 
 
 * __Amazon Cognito__
 
+    Se utiliza para el manejo de credenciales de inicio de sesión. Se encarga de verificar que el correo ingresado a la plataforma sea valido y que al momento de intentar acceder el usuario y la contraseña sean correctos. Se implemento por medio del pool de usuarios semi1g9user-pool.
+
     ![](./img/cognito.PNG)
 
 * __Pagina Web__
