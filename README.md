@@ -82,9 +82,17 @@ Permite cambiar la foto de perfil de un usuario subiendo una foto nueva a la apl
 * __/foto-perfil-existente__
 Permite cambiar la foto de perfil de un usuario por una que ya ha sido subida a la aplicación.
 
-* __/__
-descripcion
+* __/chatbot__
+Permite enviar un mensaje al servicio de amazon lex.
 
+* __/chatbot/aviso__
+Permite notificar al usuario que su clase esta por empezar.
+
+* __/get-comentario/:publicacion__
+Permite al usuario obtener todos los comentarios de un publicacion especifica.
+
+* __/comentario__
+Permite al usuario crear un comentario en una publicacion especifica.
 
 
 ## __Base de Datos__
