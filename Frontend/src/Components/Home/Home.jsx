@@ -3,6 +3,7 @@ import Form from 'react-bootstrap/Form';
 import config from "../../config.js";
 import { useNavigate } from "react-router-dom";
 import Card from 'react-bootstrap/Card';
+import AgregarPublicacion from './AgregarPublicacion';
 
 
 function Home() {
@@ -49,6 +50,48 @@ function Home() {
 
   }, []);
 
+  const getFotoByAlbum = (event) => {    
+    const valorSeleccionado = event.target.value;
+    const opcionSeleccionada = document.querySelector(`#labels option[value="${valorSeleccionado}"]`);
+    
+    if (opcionSeleccionada === null) {return}
+
+    const keySeleccionada = opcionSeleccionada.getAttribute('data-key');
+    console.log(keySeleccionada);
+
+    if(keySeleccionada == -1){
+        console.log(`${config.apiUrl}/get-publicacion-todo`)
+        fetch(`${config.apiUrl}/get-publicacion-todo`,config.requestOptionsGET)
+        .then(response => {
+            if (!response.ok) {
+                console.error(response.statusText);
+            }
+            return response.json();
+        })
+        .then((data) => {
+          console.log(data)
+          setPublicaciones(data.publicaciones)
+        }) 
+        .catch((error) => console.error(error.message));
+
+    }else{
+
+        console.log(`${config.apiUrl}/get-publicacion/${keySeleccionada}`)
+        fetch(`${config.apiUrl}/get-publicacion/${keySeleccionada}`,config.requestOptionsGET)
+        .then(response => {
+            if (!response.ok) {
+                console.error(response.statusText);
+            }
+            return response.json();
+        })
+        .then((data) => {
+          console.log(data)
+          setPublicaciones(data.publicaciones)
+        }) 
+        .catch((error) => console.error(error.message));
+    }
+  }
+
   if (publicaciones.length === 0) {
     return (
       <div style={{padding:20}}>
@@ -58,11 +101,12 @@ function Home() {
           list="labels" 
           id="exampleDataList" 
           placeholder="Ingrese una etiqueta..."
+          onChange={getFotoByAlbum}
         />
         <datalist id="labels">
-          <option value="Todos" key="-1" />
+          <option value="Todos" data-key="-1" />
           {labels.map((pub) => ( 
-            <option value={pub.nombre} key={pub.id} />
+            <option value={pub.nombre} data-key={pub.id} key={pub.id} />
           ))}
         </datalist>
       </Form.Group>
@@ -71,12 +115,29 @@ function Home() {
         <h1 className="h4 text-center text-primary" style={{padding:20}}>
           No hay publicaciones por mostrar.
         </h1>
+        <AgregarPublicacion style={{position:'relative',height:'80vh' }}/>
       </div>
     )
   }
     return(    
         <>  
-        <div style={{padding:'3% 0 0 0'}}>
+        <div style={{padding:20}}>
+          <Form.Group>
+              <Form.Label htmlFor="labels">Buscar por etiqueta</Form.Label>
+              <Form.Control 
+                list="labels" 
+                id="exampleDataList" 
+                placeholder="Ingrese una etiqueta..."
+                onChange={getFotoByAlbum}
+                
+              />
+              <datalist id="labels">
+                <option value="Todos" data-key="-1" />
+                {labels.map((pub) => ( 
+                  <option value={pub.nombre} data-key={pub.id} key={pub.id} />
+                ))}
+              </datalist>
+          </Form.Group>
           {publicaciones.map((pub,index) => ( 
               <div className="row" key={index} style={{padding:'2% 25% 15px 25%'}}>
                 <Card className="border-secondary">
@@ -90,7 +151,8 @@ function Home() {
                 </Card>
               </div>
           ))}
-          </div>        
+          </div>     
+          <AgregarPublicacion style={{position:'relative',height:'80vh' }}/>   
         </>
     )
  

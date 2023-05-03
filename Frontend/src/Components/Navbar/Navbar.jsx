@@ -55,6 +55,14 @@ function Navigation() {
                       <i className="bi bi-person-fill"></i>
                       Editar Perfil
                   </Nav.Link>
+                  <Nav.Link href="/noFriendsList">
+                      <i className="bi bi-person-plus-fill"></i>
+                      Agregar Amigos
+                  </Nav.Link>
+                  <Nav.Link href="/requests">
+                      <i className="bi bi-people-fill"></i>
+                      Ver Solicitudes
+                  </Nav.Link>
                   
               </Nav>
                 <Navbar.Brand>
