@@ -6,6 +6,7 @@ import Card from 'react-bootstrap/Card';
 import AgregarPublicacion from './AgregarPublicacion';
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
+import { Row } from 'react-bootstrap';
 
 
 function Home() {
@@ -17,10 +18,12 @@ function Home() {
   const [comentarios, setComentarios] = useState([]);
 
   const [show, setShow] = useState(false);
+  const [idComment, setIdComment] = useState(0);
 
   const handleClose = () => setShow(false);
   const handleShow = (id) => {
     console.log(id)  
+    setIdComment(id)
 
     console.log(`${config.apiUrl}/get-comentario/${id}`)
     fetch(`${config.apiUrl}/get-comentario/${id}`,config.requestOptionsGET)
@@ -37,6 +40,32 @@ function Home() {
     .catch((error) => console.error(error.message));
 
     setShow(true)
+  };
+
+  const addNewComent = (id) => {
+    console.log(id)
+    
+    const data = {
+      idpublicacion:id.idComment,
+      mensaje:document.getElementById("txtComentario").value
+    };
+    console.log(`${config.apiUrl}/Comentario`)
+    console.log(data)
+    config.requestOptionsPOST.body = JSON.stringify(data)
+    fetch(`${config.apiUrl}/Comentario`,config.requestOptionsPOST)
+    .then(response => {
+        if (!response.ok) {
+            console.error(response.statusText);
+        }
+        return response.json();
+    })
+    .then((data) => {
+      console.log(data)
+      window.location.reload()
+    }) //mensaje de respuesta del server
+    .catch((error) => {
+      console.error(error.message)
+    });
   };
 
   
@@ -193,7 +222,7 @@ function Home() {
               </h1>
             )}
             {comentarios.map((com,index) => ( 
-                <Card key={index}>
+                <Card key={index} style={{marginBottom:20}}>
                   <Card.Body>
                     <Card.Title>{com.nombre}</Card.Title>
                     <Card.Text>
@@ -202,6 +231,17 @@ function Home() {
                   </Card.Body>
               </Card>
               ))}
+              
+              <div className="row" style={{marginTop:45}}>
+                <div className="col">
+                  <Form.Control type="text" className="form-control" placeholder="Agregar Comentario" required name='comentario' id='txtComentario'/>                  
+                </div>
+                <div className="col-auto">
+                  <Button variant="primary" onClick={() => addNewComent({idComment})}>+</Button>
+                </div>
+              </div>
+              
+
             </Modal.Body>
             <Modal.Footer>
               <Button variant="primary" onClick={handleClose}>
