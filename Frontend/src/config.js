@@ -1,5 +1,5 @@
 const config = {
-    url:"http://localhost", //"http://127.0.0.1"
+    url:"http://"+"", //"http://127.0.0.1"
     Port : ":4000"//:5000
 };
   
