@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
 import config from "../../config";
 
 import '../../App.css';
-import './login.css';
+import './Login.css';
 
 
 function Login() {
