@@ -21,6 +21,11 @@ function NoFriendsList() {
 
     useEffect(() => {
 
+        const userId = localStorage.getItem('userId');
+        if (userId===null){
+          return navigate("/login");
+        } 
+
         console.log(`${config.apiUrl}/listar-desconocidos`)
         fetch(`${config.apiUrl}/listar-desconocidos`,config.requestOptionsGET)
         .then(response => {

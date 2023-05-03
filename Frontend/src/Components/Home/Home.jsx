@@ -4,6 +4,8 @@ import config from "../../config.js";
 import { useNavigate } from "react-router-dom";
 import Card from 'react-bootstrap/Card';
 import AgregarPublicacion from './AgregarPublicacion';
+import Button from 'react-bootstrap/Button';
+import Modal from 'react-bootstrap/Modal';
 
 
 function Home() {
@@ -11,6 +13,32 @@ function Home() {
   let navigate = useNavigate();
   const [labels, setLabels] = useState([]);
   const [publicaciones, setPublicaciones] = useState([]);
+
+  const [comentarios, setComentarios] = useState([]);
+
+  const [show, setShow] = useState(false);
+
+  const handleClose = () => setShow(false);
+  const handleShow = (id) => {
+    console.log(id)  
+
+    console.log(`${config.apiUrl}/get-comentario/${id}`)
+    fetch(`${config.apiUrl}/get-comentario/${id}`,config.requestOptionsGET)
+    .then(response => {
+        if (!response.ok) {
+            console.error(response.statusText);
+        }
+        return response.json();
+    })
+    .then((data) => {
+      console.log(data.comentarios[0])
+      setComentarios(data.comentarios[0])
+    }) 
+    .catch((error) => console.error(error.message));
+
+    setShow(true)
+  };
+
   
   useEffect(() => {
     
@@ -144,14 +172,46 @@ function Home() {
                 <Card.Body>
                     <Card.Title>{pub.nombre_foto}</Card.Title>
                       <img src={pub.url_foto} className='imgPub'/>
+                      <p  style={{marginTop:10}}>Descripcion: <a>(Traducir)</a></p>
                     <Card.Text>
                       {pub.descripcion}
                     </Card.Text>
+                    <Button onClick={() => handleShow(pub.id)}>Ver Comentarios...</Button>
                 </Card.Body>
                 </Card>
               </div>
           ))}
           </div>     
+          <Modal show={show} onHide={handleClose} size="xl">
+            <Modal.Header closeButton>
+              <Modal.Title>Comentarios</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+            {comentarios.length ===0 && (
+              <h1 className="h4 text-center text-primary">
+                No hay comentarios.
+              </h1>
+            )}
+            {comentarios.map((com,index) => ( 
+                <Card key={index}>
+                  <Card.Body>
+                    <Card.Title>{com.nombre}</Card.Title>
+                    <Card.Text>
+                      {com.mensaje}
+                    </Card.Text>
+                  </Card.Body>
+              </Card>
+              ))}
+            </Modal.Body>
+            <Modal.Footer>
+              <Button variant="primary" onClick={handleClose}>
+                Traducir(ingles/frances/aleman)
+              </Button>
+              <Button variant="secondary" onClick={handleClose}>
+                Cerrar
+              </Button>
+            </Modal.Footer>
+          </Modal>
           <AgregarPublicacion style={{position:'relative',height:'80vh' }}/>   
         </>
     )

@@ -20,6 +20,10 @@ function FrientRequestList() {
   
 
     useEffect(() => {
+        const userId = localStorage.getItem('userId');
+        if (userId===null){
+          return navigate("/login");
+        } 
 
         console.log(`${config.apiUrl}/solicitudes-amistad`)
         fetch(`${config.apiUrl}/solicitudes-amistad`,config.requestOptionsGET)

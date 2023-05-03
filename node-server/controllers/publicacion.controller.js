@@ -272,6 +272,7 @@ export const getComentario = async (req, res) => {
 
     result.mensaje = "Comentarios obtenidos correctamente";
     result.comentarios = Select;
+    console.log(result.comentarios)
     return res.status(200).json(result);
   } catch (error) {
     //Error si algo sale mal

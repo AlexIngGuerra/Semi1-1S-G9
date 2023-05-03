@@ -24,7 +24,7 @@ export function EditProfile() {
 
       const userId = localStorage.getItem('userId');
       if (userId==null){
-        return navigate("/");
+        return navigate("/login");
       } 
       
       console.log(`${config.apiUrl}/get-fotos-perfil`)
