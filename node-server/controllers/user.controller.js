@@ -280,4 +280,99 @@ export const modificarDatos = async (req, res) => {
     }
 }
 
+// Modificar la foto de perfil
+export const cambiarFotoNueva = async (req, res) =>{
+    let result = {
+        mensaje: "",
+    }
 
+    try{
+        const {password, nombre_foto, imagen} = req.body;
+
+        //Verificar token
+        const user = await validarToken(req.headers["access-token"]);
+        if (user == null){
+            result.mensaje = "Acceso Denegado"
+            return res.status(401).json(result)
+        }
+        const PathFoto = "Fotos_Perfil/"+user.id+"-"+nombre_foto;
+
+        // VERIFICAR CONTRASEÑA
+        const [Select] = await pool.query(
+            `SELECT COUNT(id) as result FROM Usuario
+            WHERE id = '${user.id}' and password = '${md5(password)}';`);
+        if (Select[0].result < 1){
+            result.mensaje = "Debe ingresar su contraseña correctamente"
+            return res.status(401).json(result)
+        }
+
+        // Agregar imagen a S3
+        const puts3 = await guardarFoto(PathFoto, imagen)
+        if(!puts3){
+            return res.status(500).json({ message: "Error: No se ha podido subir la imagen." });
+        }
+
+        // Actualizar la base de datos
+        await pool.query(
+            `UPDATE FotoPerfil SET Activa=0 WHERE activa = 1 and usuario = '${user.id}'  `
+        );
+
+        await pool.query(
+            `INSERT INTO FotoPerfil (nombre_foto, url, activa, usuario) 
+            VALUES ('${nombre_foto}', '${PathFoto}', 1, '${user.id}');`
+        );
+
+        result.mensaje = "Foto de perfil actualizada"
+        return res.status(200).json(result);
+    }
+    catch (error) {//Error si algo sale mal
+        console.log(error)
+        result.mensaje = "Algo ha salido mal"
+        return res.status(500).json(result);
+    }
+}
+
+
+export const modificarFotoExistente = async (req, res) =>{
+    let result = {
+        mensaje: "",
+    }
+
+    try{
+        const {password, id_foto} = req.body;
+
+        //Verificar token
+        const user = await validarToken(req.headers["access-token"]);
+        if (user == null){
+            result.mensaje = "Acceso Denegado"
+            return res.status(401).json(result)
+        }
+
+        // VERIFICAR CONTRASEÑA
+        const [Select] = await pool.query(
+            `SELECT COUNT(id) as result FROM Usuario
+            WHERE id = '${user.id}' and password = '${md5(password)}';`);
+        if (Select[0].result < 1){
+            result.mensaje = "Debe ingresar su contraseña correctamente"
+            return res.status(401).json(result)
+        }
+
+        await pool.query(
+            `UPDATE FotoPerfil SET Activa=0 WHERE Activa = 1 and usuario = '${user.id}'`
+        );
+        
+        await pool.query(
+            `UPDATE FotoPerfil SET Activa = 1 WHERE id = ${id_foto} and usuario = '${user.id}' `
+        );
+
+
+
+        result.mensaje = "Foto de perfil actualizada correctamente"
+        return res.status(200).json(result);
+    }
+    catch (error) {//Error si algo sale mal
+        console.log(error)
+        result.mensaje = "Algo ha salido mal"
+        return res.status(500).json(result);
+    }
+}
