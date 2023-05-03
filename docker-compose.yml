@@ -24,6 +24,6 @@ services:
             dockerfile: Dockerfile
             context: ./Frontend
         ports:
-            - 8080:80
+            - 5173:5173
         networks:
             - semi
