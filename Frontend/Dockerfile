@@ -5,4 +5,5 @@ COPY package*.json ./
 RUN npm ci --silent
 # Have a .dockerignore file ignoring node_modules and build
 COPY . ./
+EXPOSE 5173
 CMD ["npm", "run", "dev"]
