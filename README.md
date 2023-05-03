@@ -19,7 +19,7 @@ Para el FrontEnd se utilizo el framework de javaScript React utilizando VITE par
 ## __Backend__
 
 ### __NodeJS__
-Para la api se utilizo como lenguaje nodejs utilizando express, morgan y cors para su configuración. Para la conexión a aws se utilizó aws-sdk, para la conexión a la base de datos se utilizó mysql2 y para leer el .env se utilizó dotenv. Para encriptación se utilizó md5. Se creó una imagen de docker para poder ejecutarlo posteriormente con docker compose.
+Para la api se utilizo como lenguaje nodejs utilizando express, morgan y cors para su configuración. Para la conexión a aws se utilizó aws-sdk, para la conexión a la base de datos se utilizó mysql2 y para leer el .env se utilizó dotenv. Para la seguridad se implemento JWT para la verificación de permisos e inicio de sesión enlazada con cognito. Para encriptación se utilizó md5. Se creó una imagen de docker para poder ejecutarlo posteriormente con docker compose.
 
 ### __Endpoints__
 
